@@ -7,6 +7,7 @@
 	<script src="d3.js"></script>
 </head>
 <body>
+<button type="button" onclick="next()">next step</button>
 
 <script>
 
@@ -22,17 +23,67 @@
 		plaza: function (x, y) {
 			x--;
 			y = this.height - y;
-			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", 'pink');
+			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", 'lavender');
 		},
 		block: function (x, y) {
 			x--;
 			y = this.height - y;
 			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", 'black');
 		},
-		base: function (x, y) {
+		base: function (x, y, num) {
 			x--;
 			y = this.height - y;
-			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", 'green');
+			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", Players.colors[num]);
+		}
+	};
+
+	var Players = {
+		svg: d3.select('body').append("svg:svg").attr("width", 500).attr("height", 200),
+		colors: {
+			"1": "red",
+			"2": "blue",
+			"3": "green",
+			"4": "purple"
+		},
+		render: function (player, num) {
+			return this.svg
+					.append("text")
+					.attr("x", 10)
+					.attr("y", num * 30)
+					.text(player.name)
+					.attr('fill', this.colors[num]);
+		}
+	};
+
+
+	var Units = {
+		units: {},
+		render: function (state) {
+
+			var AreaUnit;
+
+			var x = state.position.x * 20 - 5 - Math.random() * 10;
+			var y = (Area.height - state.position.y + 1) * 20 - 5 - Math.random() * 10;
+
+			if (!this.units[state.unitId]) {
+				AreaUnit = Area.svg.append('circle')
+						.style('fill', 'white')
+						.style('stroke', Players.colors[state.playerId])
+						.style('stroke-width', 2)
+						.attr('r', 5)
+				;
+				this.units[state.unitId] = AreaUnit;
+				AreaUnit.attr('cx', x)
+						.attr('cy', y);
+			} else {
+				AreaUnit = this.units[state.unitId];
+				AreaUnit.transition()
+						.delay(10)
+						.attr('cx', x)
+						.attr('cy', y);
+			}
+
+
 		}
 	};
 
@@ -49,41 +100,61 @@
 
 	socket.on('handshake', function () {
 		console.log('handshake');
+		socket.emit('game', "548de7ec61c43ab48e3acaa7");
 	});
-	socket.on('map', function (item) {
 
-		console.log('get item');
-		console.log(item);
+	socket.on('game', function (data) {
 
-		Area.size(item.area.width, item.area.height);
+		console.log(data);
+		drawMap(data.Map);
+		drawPlayers(data.Game.players);
+		STATES = data.States;
 
-		for (var x = item.area.width; x > 0; x--) {
-			for (var y = item.area.height; y > 0; y--) {
+	});
+
+	var ITERATION = 0;
+	var STATES = [];
+	function next() {
+		if (STATES[ITERATION]) {
+			Units.render(STATES[ITERATION]);
+			ITERATION++;
+			setTimeout(next, 10);
+		}
+	}
+
+
+	function drawPlayers(players) {
+		var key = '';
+		for (var i = 1; i < 10; i++) {
+			key = '' + i;
+			if (players[key]) {
+				Players.render(players[key], key);
+			}
+		}
+	}
+
+	function drawMap(Map) {
+
+		Area.size(Map.area.width, Map.area.height);
+
+		for (var x = Map.area.width; x > 0; x--) {
+			for (var y = Map.area.height; y > 0; y--) {
 				Area.plaza(x, y);
 			}
 		}
 
 		var i, qnt;
 
-		for (i = 0, qnt = item.bases.length; i < qnt; i++) {
-			Area.base(item.bases[i][0], item.bases[i][1]);
+		for (i = 0, qnt = Map.bases.length; i < qnt; i++) {
+			Area.base(Map.bases[i][0], Map.bases[i][1], i + 1);
 		}
 
-		for (i = 0, qnt = item.blocks.length; i < qnt; i++) {
-			Area.block(item.blocks[i][0], item.blocks[i][1]);
+		for (i = 0, qnt = Map.blocks.length; i < qnt; i++) {
+			Area.block(Map.blocks[i][0], Map.blocks[i][1]);
 		}
 
-	});
+	}
 
-	/*
-	 var socket = io();
-
-	 io.on('connection', function(socket){
-	 socket.on('handshake', function(){
-	 console.log('handshake');
-	 });
-	 });
-	 */
 
 </script>
 

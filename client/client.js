@@ -5,6 +5,8 @@ var options = {};
 module.exports = connect;
 function connect(opt) {
 
+	var $this = this;
+
 	options = opt;
 
 	// сервер сообщает о начале игры и передает данные юнитов
@@ -15,7 +17,7 @@ function connect(opt) {
 	// сервер сообщает что юнит готов к следующему ходу
 	socket.on('ready', function (data) {
 		// id юнита и его обстановка
-		options.ready(data.id, data.position);
+		options.ready(data.id, data.position, $this.move, $this.hold);
 	});
 
 	// сервер сообщает что юнит был уничтожен
@@ -26,7 +28,7 @@ function connect(opt) {
 	// сервер сообщает что был создан новый юнит
 	socket.on('create', function (data) {
 		// id юнита и его обстановка
-		options.create(data.id, data.position);
+		options.create(data.id, data.position, $this.move, $this.hold);
 	});
 
 	/**
@@ -48,6 +50,7 @@ function connect(opt) {
 			direction: direction,
 			mode: mode
 		});
+		console.log('player [' + options.name + '] unit [' + id + '] command [move] direction[' + direction + '] mode [' + mode + ']');
 
 	};
 
@@ -86,7 +89,7 @@ socket.on('handshake', function () {
 	 */
 	socket.emit('name', data);
 
-	console.log('data received: ' + JSON.stringify(data));
+	console.log('data sent: ' + JSON.stringify(data));
 
 });
 
