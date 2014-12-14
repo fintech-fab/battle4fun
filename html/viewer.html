@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
+	<script src="d3.js"></script>
+</head>
+<body>
+
+<script>
+
+	var Area = {
+		height: 0,
+		width: 0,
+		svg: d3.select('body').append("svg:svg"),
+		size: function (w, h) {
+			this.height = h;
+			this.width = w;
+			this.svg.attr("width", this.width * 20).attr("height", this.height * 20);
+		},
+		plaza: function (x, y) {
+			x--;
+			y = this.height - y;
+			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", 'pink');
+		},
+		block: function (x, y) {
+			x--;
+			y = this.height - y;
+			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", 'black');
+		},
+		base: function (x, y) {
+			x--;
+			y = this.height - y;
+			return this.svg.append("rect").attr("x", x * 20).attr("y", y * 20).attr("width", 18).attr("height", 18).style("fill", 'green');
+		}
+	};
+
+
+	var socket = io('http://127.0.0.1:8081');
+	socket.on('connect', function () {
+		console.log('connected');
+	});
+	socket.on('event', function (data) {
+	});
+	socket.on('disconnect', function () {
+	});
+
+
+	socket.on('handshake', function () {
+		console.log('handshake');
+	});
+	socket.on('map', function (item) {
+
+		console.log('get item');
+		console.log(item);
+
+		Area.size(item.area.width, item.area.height);
+
+		for (var x = item.area.width; x > 0; x--) {
+			for (var y = item.area.height; y > 0; y--) {
+				Area.plaza(x, y);
+			}
+		}
+
+		var i, qnt;
+
+		for (i = 0, qnt = item.bases.length; i < qnt; i++) {
+			Area.base(item.bases[i][0], item.bases[i][1]);
+		}
+
+		for (i = 0, qnt = item.blocks.length; i < qnt; i++) {
+			Area.block(item.blocks[i][0], item.blocks[i][1]);
+		}
+
+	});
+
+	/*
+	 var socket = io();
+
+	 io.on('connection', function(socket){
+	 socket.on('handshake', function(){
+	 console.log('handshake');
+	 });
+	 });
+	 */
+
+</script>
+
+
+</body>
+</html>
