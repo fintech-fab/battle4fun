@@ -3,7 +3,7 @@
 <head lang="en">
 	<meta charset="UTF-8">
 	<title></title>
-	<script src="https://cdn.socket.io/socket.io-1.2.1.js"></script>
+	<script src="socket.io-1.2.1.js"></script>
 	<script src="d3.js"></script>
 </head>
 <body>
@@ -77,10 +77,17 @@
 						.attr('cy', y);
 			} else {
 				AreaUnit = this.units[state.unitId];
-				AreaUnit.transition()
-						.delay(10)
-						.attr('cx', x)
-						.attr('cy', y);
+				if(!AreaUnit.$destroy) {
+					AreaUnit.transition()
+							.delay(10)
+							.attr('cx', x)
+							.attr('cy', y);
+				}
+			}
+
+			if(state.result == 'destroy'){
+				AreaUnit.style('opacity', 0.1);
+				AreaUnit.$destroy = true;
 			}
 
 
@@ -100,7 +107,7 @@
 
 	socket.on('handshake', function () {
 		console.log('handshake');
-		socket.emit('game', "548de7ec61c43ab48e3acaa7");
+		socket.emit('game', "548ee7430966a2700e75e77b");
 	});
 
 	socket.on('game', function (data) {

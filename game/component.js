@@ -56,6 +56,11 @@ function GameComponent(GameModel, MapModel, Players) {
 	 */
 	this.onMoveUnit = function (Unit) {
 
+		// юнит мертв и мы уходим отсюда горько плакая и ничего не делая
+		if(Unit.$destroy){
+			return;
+		}
+
 		// пересчитываем позицию юнита
 		Unit.initFriendPosition();
 		Unit.initEnemyPosition($this.units);
@@ -69,8 +74,23 @@ function GameComponent(GameModel, MapModel, Players) {
 			return;
 		}
 
+		// этих затоптали друзья
+		var destroyUnits = require('./rules/pandemonium.js')(
+			Unit.Player.units,
+			$this.MapModel.bases[Unit.Player.baseNumber()],
+			3,
+			50
+		);
+		if(destroyUnits.length > 0){
+			for(var i= 0, qnt = destroyUnits.length; i < qnt; i++){
+				destroyUnits[i].emitDestroy();
+			}
+		}
+
 		// юнит готов к следующему ходу
-		Unit.Player.emitUnitReady(Unit);
+		if(!Unit.$destroy) {
+			Unit.emitReady();
+		}
 
 	};
 

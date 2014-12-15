@@ -93,6 +93,9 @@ function Player(data, client) {
 		return name;
 	};
 
+	/**
+	 * клиент сообщил серверу что хочет пододвинуть своего юнита
+	 */
 	client.on('move', function (cmd) {
 
 		var Unit = $this.getUnit(cmd.id);
@@ -106,8 +109,6 @@ function Player(data, client) {
 			Unit.y = newPos[1];
 		}
 
-		Unit.stepUp();
-
 		// запишем состояние юнита после хода игрока в базу
 		require('./game/state.js').client(
 			$this.gameId,
@@ -116,13 +117,35 @@ function Player(data, client) {
 			{x: Unit.x, y: Unit.y},
 			'move',
 			cmd.mode,
-			Unit.step
+			Unit.stepUp()
 		);
 
 		// юнит переместился, передаем ответственность игре
 		$this.Game.onMoveUnit(Unit);
 
 	});
+
+	/**
+	 * юнит умер
+	 * @param Unit
+	 */
+	this.emitUnitDestroy = function(Unit){
+
+		// запишем состояние юнита после хода игрока в базу
+		require('./game/state.js').server(
+			this.gameId,
+			this.number,
+			Unit.id,
+			{x: Unit.x, y: Unit.y},
+			'destroy',
+			'destroy',
+			Unit.step
+		);
+
+		// сообщаем клиенту о гибели юнита к следующему ходу
+		client.emit('destroy', Unit.id);
+
+	};
 
 	/**
 	 * готовность юнита к следующему ходу
@@ -167,6 +190,10 @@ function Player(data, client) {
 	};
 
 
+	/**
+	 * сообщаем всем подключившимся клиентам о начале игры
+	 * и передаем каждому список его юнитов
+	 */
 	this.emitStartGame = function () {
 
 		var units = [], Unit;
@@ -232,7 +259,27 @@ function Unit() {
 	this.eats = [];
 	this.bases = [];
 	this.step = 0;
+	this.$destroy = false;
 
+	/**
+	 * выполнить ритуал уничтожения этого юнита
+	 */
+	this.emitDestroy = function(){
+		this.$destroy = true;
+		this.Player.emitUnitDestroy(this);
+	};
+
+	/**
+	 * передать руководству что юнит ждет указаний
+	 */
+	this.emitReady = function(){
+		this.Player.emitUnitReady(this);
+	};
+
+	/**
+	 * сбор данных для клиента, когда сообщаем состояние юнита
+	 * @returns {{x: *, y: *, id: *, friends: *, enemies: *, blocks: *, eats: *, bases: *}}
+	 */
 	this.initPosition = function () {
 		return {
 			x: this.x,
@@ -246,10 +293,20 @@ function Unit() {
 		};
 	};
 
+	/**
+	 * вызывать, когда юнит совершает следующий шаг
+	 * @returns {number}
+	 */
 	this.stepUp = function () {
 		this.step++;
+		return this.step;
 	};
 
+	/**
+	 * выяснить координаты юнита, если он передвинется по направлению direction
+	 * @param direction
+	 * @returns {*[]}
+	 */
 	this.getNewPos = function (direction) {
 
 		var x = this.x,
@@ -277,7 +334,10 @@ function Unit() {
 
 	};
 
-
+	/**
+	 * установить, в каком режиме будет находиться юнит
+	 * @param mode
+	 */
 	this.setMode = function (mode) {
 		if (mode === 'attack' || mode === 'defence') {
 			this.mode = mode;
@@ -286,6 +346,12 @@ function Unit() {
 		}
 	};
 
+	/**
+	 * проверить, может ли юнит передвинуться на эти координаты
+	 * @param x
+	 * @param y
+	 * @returns {boolean}
+	 */
 	this.checkNewPos = function (x, y) {
 		for (var i = 0, qnt = this.blocks.length; i < qnt; i++) {
 			if (x == this.blocks[i][0] && y == this.blocks[i][1]) {
