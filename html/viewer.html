@@ -7,7 +7,12 @@
 	<script src="d3.js"></script>
 </head>
 <body>
-<button type="button" onclick="next()">next step</button>
+
+<input type="text" id="gameId" />
+
+<button type="button" onclick="run()">run game</button>
+<br /> <br />
+
 
 <script>
 
@@ -104,10 +109,8 @@
 	socket.on('disconnect', function () {
 	});
 
-
 	socket.on('handshake', function () {
 		console.log('handshake');
-		socket.emit('game', "548ee7430966a2700e75e77b");
 	});
 
 	socket.on('game', function (data) {
@@ -117,7 +120,14 @@
 		drawPlayers(data.Game.players);
 		STATES = data.States;
 
+		next();
 	});
+
+	function run() {
+		var gameId = document.getElementById("gameId").value;
+
+		socket.emit('game', gameId);
+	}
 
 	var ITERATION = 0;
 	var STATES = [];
