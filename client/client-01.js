@@ -15,6 +15,9 @@ var client = require('./client.js')({
 	name: 'mikanoz',
 	memory: undefined,
 
+	// один патрульный
+	patrolId: undefined,
+
 	/**
 	 * начало игры, данные юнитов
 	 * @param units
@@ -41,8 +44,14 @@ var client = require('./client.js')({
 		// помощник по ориентированию в закрытом пространстве
 		var orient = new orientation(position);
 
-		// если не задана стратегия движения
-		if (!this.memory.getMoveStrategy(id)) {
+		// одного назначим патрулировать
+		if(this.setPatrol(id, orient, move)){
+			return;
+		}
+
+
+		// если не задана стратегия
+		if (this.memory.isEmpty(id)) {
 
 			// определим свободные направления
 			var possible = orient.getFreeDirections();
@@ -68,6 +77,38 @@ var client = require('./client.js')({
 			move(id, direction, MOD_DEF);
 
 		}
+
+	},
+
+	setPatrol: function(id, orient, move){
+
+		// кто-то другой уже патрулирует
+		if(this.patrolId && this.patrolId != id){
+			return false;
+		}
+
+		if(!this.patrolId) {
+
+			this.patrolId = id;
+
+			// если справа свободно, ходи туда-сюда на 5 клеток
+			if (!orient.isBlockedRight(3)) {
+				this.memory.setPatrolStrategy(id, 6, 5);
+			}
+
+			// или если свободно слева
+			if (!orient.isBlockedLeft(3)) {
+				this.memory.setPatrolStrategy(id, 4, 5);
+			}
+
+		}
+
+		// сразу отправим погулять
+		var direction = this.memory.getDirectByPatrolStrategy(id);
+		move(id, direction, MOD_ATTACK);
+
+		// отвечаем что патрульный был назначен
+		return true;
 
 	},
 
