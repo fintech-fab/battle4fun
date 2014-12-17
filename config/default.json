@@ -1,0 +1,16 @@
+{
+  "Rules": {
+    "collection": {
+      "type1": {
+        "players": 2,
+        "mapId": "simple",
+        "rules": {
+          "pandemonium": {
+            "size": 3,
+            "chance": 10
+          }
+        }
+      }
+    }
+  }
+}

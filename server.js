@@ -1,10 +1,8 @@
-var io = require('socket.io').listen(8080);
+var io = require('socket.io').listen(7777);
 var defer = require("node-promise").defer;
+var config = require('config');
 
-var CONFIG = {
-	players: 2, // количество игроков
-	mapId: 'simple' // карта
-};
+var CONFIG = config.get('Rules').collection["type1"];
 
 // реестр игроков
 var PlayerCollection = {
@@ -67,7 +65,7 @@ function StartNewGame() {
 		require('./map/' + GameModel.mapId + '.js')().then(function (MapModel) {
 			// запускаем игру в компоненте
 			var component = require('./game/component.js');
-			component = new component(GameModel, MapModel, PlayerCollection.list);
+			component = new component(CONFIG, GameModel, MapModel, PlayerCollection.list);
 			component.start();
 		});
 	});
@@ -129,7 +127,7 @@ function Player(data, client) {
 	 * юнит умер
 	 * @param Unit
 	 */
-	this.emitUnitDestroy = function(Unit){
+	this.emitUnitDestroy = function (Unit) {
 
 		// запишем состояние юнита после хода игрока в базу
 		require('./game/state.js').server(
@@ -264,7 +262,7 @@ function Unit() {
 	/**
 	 * выполнить ритуал уничтожения этого юнита
 	 */
-	this.emitDestroy = function(){
+	this.emitDestroy = function () {
 		this.$destroy = true;
 		this.Player.emitUnitDestroy(this);
 	};
@@ -272,7 +270,7 @@ function Unit() {
 	/**
 	 * передать руководству что юнит ждет указаний
 	 */
-	this.emitReady = function(){
+	this.emitReady = function () {
 		this.Player.emitUnitReady(this);
 	};
 
@@ -485,11 +483,11 @@ function Unit() {
 		// 3 клетки во все стороны, за исключением угловых
 
 		return (this.x <= x + 3 && this.x >= x - 3)
-		&& (this.y <= y + 3 && this.y >= y - 3)
-		&& !(this.x == x - 3 && this.y == y - 3)
-		&& !(this.x == x - 3 && this.y == y + 3)
-		&& !(this.x == x + 3 && this.y == y - 3)
-		&& !(this.x == x + 3 && this.y == y + 3);
+			&& (this.y <= y + 3 && this.y >= y - 3)
+			&& !(this.x == x - 3 && this.y == y - 3)
+			&& !(this.x == x - 3 && this.y == y + 3)
+			&& !(this.x == x + 3 && this.y == y - 3)
+			&& !(this.x == x + 3 && this.y == y + 3);
 
 	};
 

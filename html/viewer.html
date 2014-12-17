@@ -82,7 +82,7 @@
 						.attr('cy', y);
 			} else {
 				AreaUnit = this.units[state.unitId];
-				if(!AreaUnit.$destroy) {
+				if (!AreaUnit.$destroy) {
 					AreaUnit.transition()
 							.delay(10)
 							.attr('cx', x)
@@ -90,7 +90,7 @@
 				}
 			}
 
-			if(state.result == 'destroy'){
+			if (state.result == 'destroy') {
 				AreaUnit.style('opacity', 0.1);
 				AreaUnit.$destroy = true;
 			}
@@ -100,7 +100,7 @@
 	};
 
 
-	var socket = io('http://127.0.0.1:8081');
+	var socket = io('http://127.0.0.1:8888');
 	socket.on('connect', function () {
 		console.log('connected');
 	});

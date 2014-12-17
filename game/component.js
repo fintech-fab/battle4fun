@@ -11,6 +11,7 @@ module.exports = GameComponent;
 
 /**
  *
+ * @param Config
  * @param {mongoose.model} GameModel
  * @param {mongoose.model} MapModel
  * @param {Player[]} Players
@@ -18,8 +19,9 @@ module.exports = GameComponent;
  *
  * @namespace MapModel.bases
  */
-function GameComponent(GameModel, MapModel, Players) {
+function GameComponent(Config, GameModel, MapModel, Players) {
 
+	this.Config = Config;
 	this.MapModel = MapModel;
 	this.GameModel = GameModel;
 	this.Players = Players;
@@ -57,7 +59,7 @@ function GameComponent(GameModel, MapModel, Players) {
 	this.onMoveUnit = function (Unit) {
 
 		// юнит мертв и мы уходим отсюда горько плакая и ничего не делая
-		if(Unit.$destroy){
+		if (Unit.$destroy) {
 			return;
 		}
 
@@ -74,21 +76,22 @@ function GameComponent(GameModel, MapModel, Players) {
 			return;
 		}
 
-		// этих затоптали друзья
-		var destroyUnits = require('./rules/pandemonium.js')(
-			Unit.Player.units,
-			$this.MapModel.bases[Unit.Player.baseNumber()],
-			3,
-			50
-		);
-		if(destroyUnits.length > 0){
-			for(var i= 0, qnt = destroyUnits.length; i < qnt; i++){
-				destroyUnits[i].emitDestroy();
-			}
+		// запускаем все правила
+		var rules = this.Config.rules;
+		var constructor = {
+			Unit: Unit,
+			MapModel: $this.MapModel,
+			params: {}
+		};
+		var rule;
+		for (var ruleKey in rules) {
+			rule = rules[ruleKey];
+			constructor.params = rule;
+			require('./rules/' + ruleKey + '.js')(constructor);
 		}
 
 		// юнит готов к следующему ходу
-		if(!Unit.$destroy) {
+		if (!Unit.$destroy) {
 			Unit.emitReady();
 		}
 

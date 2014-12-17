@@ -1,6 +1,6 @@
 var orientation = require('./helpers/orientation.js');
 var memory = require('./helpers/memory.js');
-global.SERVER_URL = 'http://localhost:8080/';
+global.SERVER_URL = 'http://localhost:7777/';
 
 var units = [];
 var DIR_TOP = 'top';
