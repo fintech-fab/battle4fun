@@ -1,9 +1,5 @@
-var socket = require('socket.io-client')(global.SERVER_URL);
-var options = {};
-
-// bootstrap function
-module.exports = connect;
-function connect(opt) {
+var options;
+function ClientConnect(opt) {
 
 	var $this = this;
 
