@@ -8,6 +8,9 @@
           "pandemonium": {
             "size": 3,
             "chance": 10
+          },
+          "anteater": {
+            "chance": 10
           }
         }
       }
