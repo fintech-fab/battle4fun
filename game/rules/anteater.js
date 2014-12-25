@@ -21,7 +21,7 @@ module.exports = function (constructor) {
 	// chance - вероятность быть съеденым муравьедом
 	var chance = constructor.params.chance / 100;
 
-	if (Math.random() > (1 - chance))
+	if (Math.random() <= chance)
 	    unit.emitDestroy();
 
 };
