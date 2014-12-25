@@ -34,7 +34,7 @@ function memory(units) {
 	 */
 	this.setMoveStrategy = function (id, direction) {
 		solutions[id].moveStrategy = {
-			direct: direction, // куда двигаться
+			direct: direction // куда двигаться
 		};
 		exists[id] = true;
 	};
