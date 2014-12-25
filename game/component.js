@@ -71,7 +71,7 @@ function GameComponent(Config, GameModel, MapModel, Players) {
 		Unit.initBasePosition($this.MapModel.bases);
 
 		// если слишком много ходов, зависаем
-		if (Unit.step > 50) {
+		if (Unit.step > 100) {
 			console.log('unit [' + Unit.id + '] too many steps, sleep it!');
 			return;
 		}
