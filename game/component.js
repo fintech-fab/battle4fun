@@ -79,6 +79,7 @@ function GameComponent(Config, GameModel, MapModel, Players) {
 		// запускаем все правила
 		var rules = this.Config.rules;
 		var constructor = {
+			Players: $this.Players,
 			Unit: Unit,
 			MapModel: $this.MapModel,
 			params: {}
@@ -132,7 +133,7 @@ function GameComponent(Config, GameModel, MapModel, Players) {
 
 		}
 
-		if (counter < 10) {
+		if (counter < $this.Config.unitsPerPlayer) {
 			createStartUnit(counter);
 		}
 

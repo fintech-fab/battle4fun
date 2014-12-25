@@ -74,7 +74,7 @@ var client = require('./client.js')({
 		} else {
 
 			// осторожно бежим
-			move(id, direction, MOD_DEF);
+			move(id, direction, MOD_ATTACK);
 
 		}
 

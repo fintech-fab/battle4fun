@@ -3,11 +3,19 @@
     "collection": {
       "type1": {
         "players": 2,
+        "unitsPerPlayer": 10,
+        "visibility": 3,
         "mapId": "simple",
         "rules": {
           "pandemonium": {
             "size": 3,
             "chance": 10
+          },
+          "battle": {
+            "distance": 1,
+            "defaultChance": 10,
+            "attackChanceRatio": 2,
+            "defenceChanceRatio": 5
           },
           "anteater": {
             "chance": 10

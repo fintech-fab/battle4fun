@@ -101,6 +101,10 @@ function Player(data, client) {
 
 		Unit.setMode(cmd.mode);
 
+		if (Unit.$destroy) {
+			return;
+		}
+
 		// если позиция возможна
 		if (newPos[2]) {
 			Unit.x = newPos[0];
@@ -479,15 +483,15 @@ function Unit() {
 	 * @returns {boolean}
 	 */
 	this.descry = function (x, y) {
-
 		// 3 клетки во все стороны, за исключением угловых
+		var visibility = CONFIG.visibility;
 
-		return (this.x <= x + 3 && this.x >= x - 3)
-			&& (this.y <= y + 3 && this.y >= y - 3)
-			&& !(this.x == x - 3 && this.y == y - 3)
-			&& !(this.x == x - 3 && this.y == y + 3)
-			&& !(this.x == x + 3 && this.y == y - 3)
-			&& !(this.x == x + 3 && this.y == y + 3);
+		return (this.x <= x + visibility && this.x >= x - visibility)
+			&& (this.y <= y + visibility && this.y >= y - visibility)
+			&& !(this.x == x - visibility && this.y == y - visibility)
+			&& !(this.x == x - visibility && this.y == y + visibility)
+			&& !(this.x == x + visibility && this.y == y - visibility)
+			&& !(this.x == x + visibility && this.y == y + visibility);
 
 	};
 
