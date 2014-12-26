@@ -1,4 +1,7 @@
 var options;
+var SERVER_URL = 'http://localhost:7777/';
+var socket = io('http://127.0.0.1:7777');
+
 function ClientConnect(opt) {
 
 	var $this = this;
