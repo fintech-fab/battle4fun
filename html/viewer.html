@@ -111,6 +111,13 @@
 
 	socket.on('handshake', function () {
 		console.log('handshake');
+		socket.emit('list');
+	});
+
+	socket.on('list', function(data) {
+		console.log('Games id:');
+		for (var i = 0; i < data.length; i++)
+			console.log(data[i]);
 	});
 
 	socket.on('game', function (data) {
