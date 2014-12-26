@@ -3,7 +3,7 @@
  * С вероятностью chance муравей может быть съеден муравьедом.
  * на текущей клетке игрового поля
  */
-
+var Chance = new require('chance')();
 
 /**
  * @return {Unit[]} юнит, которого съели
@@ -19,10 +19,8 @@ module.exports = function (constructor) {
 
 	/** @namespace constructor.params.chance */
 	// chance - вероятность быть съеденым муравьедом
-	var chance = constructor.params.chance / 100;
-
-	if (Math.random() <= chance)
-	    unit.emitDestroy();
+	if (Chance.bool({likelihood: constructor.params.chance}))
+		unit.emitDestroy();
 
 };
 

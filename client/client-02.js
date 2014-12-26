@@ -60,7 +60,7 @@ var client = require('./client.js')({
 		if (!direction) {
 
 			// запутались, постоим на месте
-			hold(id, MOD_DEF);
+			hold(id, MOD_ATTACK);
 
 		} else {
 
